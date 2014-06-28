@@ -1,14 +1,15 @@
-# Created by newuser for 5.0.2
-tmuxR(){
+#!/bin/zsh
+#TMUX FUNCTION AND AUTOSTART
+tmuxRecycle(){
 	if (tmux ls | grep -vq attached); then
 		exec tmux at
 	else
-		exec tmux
+		exec tmux -2
 	fi
 }
+(echo $TTY | grep -vq "/dev/tty") && [[ -z $MC_SID ]] && [[ -z $TMUX ]] && [[ -z $SSH_CONNECTION ]] && tmuxRecycle
 
-[[ -z $MC_SID ]] && [[ -z $TMUX ]] && [[ -z $SSH_CONNECTION ]] && tmuxR
-
+#ZSH SETTINGS
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' glob 1
@@ -27,28 +28,45 @@ HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=10000
 setopt appendhistory autocd extendedglob notify
-bindkey -e
+bindkey -v
 
-export EDITOR=vim
-
+#ZSH FUNCTIONS
 precmd(){
-	BLU=""
+	LNK=""
+	PREPROMPT=""
 	ERR=$?
-	UCOL="cyan"
-	PREPROMPT="%{%F{$UCOL}%}"
-	[[ -h $PWD ]] && BLU="%{%F{green}%}"
-	[[ $UID -eq 0 ]] && UCOL="red"
+	[[ -f .showerr ]] && [[ $ERR -ne 0 ]] && PREPROMPT="$ERR> <"
+	[[ $UID -eq 0 ]] && UCOL="red" || UCOL="cyan"
+	PREPROMPT="$PREPROMPT%{%F{$UCOL}%}"
+	[[ -h $PWD ]] && LNK="%{%F{cyan}%}"
 	[[ $ERR -ne 0 ]] && PREPROMPT="%{%F{red}%}$ERR%{%f%}> <$PREPROMPT"
 	if [[ -z $MC_SID ]]; then
 		PS1="$PREPROMPT%n%{%f%}@%m> "
-		RPS1="<$BLU%~%{%f%}> <%T"
+		RPS1="<$LNK%~%{%f%}> <%T"
 	else
 		PS1="$PREPROMPT%n%{%f%}@%m:%~> "
 	fi
 }
 
+#CUSTOM BINDINGS
+chpwd(){
+	ls --color
+}
+
+sbcl(){
+	sbclbin=/usr/bin/sbcl
+	[[ $1 == "" ]] && $sbclbin --linedit ||
+		$sbclbin $*
+}
+
+alias cls="clear"
 alias ls="ls --color"
+alias l="ls"
 alias su="su -m"
 alias sudo="sudo -E"
-alias startx="env --unset=TMUX startx"
-alias x="startx &>~/.xlog"
+alias path="echo $PATH"
+alias x="startx &>.xlog"
+alias tree="tree -C"
+
+#COMMAND NOT FOUND
+[ -r /etc/profile.d/cnf.sh ] && . /etc/profile.d/cnf.sh

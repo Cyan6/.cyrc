@@ -1,66 +1,50 @@
 set nocompatible
 filetype off
 
-" set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
-" let Vundle manage Vundle, required
 Bundle 'gmarik/vundle'
 Bundle 'kovisoft/slimv'
 Bundle 'scrooloose/nerdtree'
 Bundle 'tpope/vim-vividchalk'
+Bundle 'tpope/vim-eunuch'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tomtom/tcomment_vim'
+Bundle 'bling/vim-airline'
+Bundle 'ervandew/supertab'
+Plugin 'nsf/gocode', {'rtp': 'vim/'}
 
-filetype plugin indent on     " required
+filetype plugin indent on
 
 colorscheme vividchalk
 set wrap
-set textwidth=0 wrapmargin=0
-set tabstop=4
 set number
-set scrolloff=9000
+set laststatus=2
+set noshowmode
+set textwidth=0 wrapmargin=0
+set tabstop=2
+set shiftwidth=2
+set scrolloff=5
+set mouse=a
+syntax enable
 
-function! TabComplete()
-	if pumvisible()
-		return "\<c-y>"
-	endif
-	let line = getline('.')
+map <F2> :NERDTreeToggle<CR>
+map <F3> :NERDTreeMirror<CR>
 
-	let substr = strpart(line, -1, col('.')+1)
+if !exists('g:airline_symbols')
+	let g:airline_symbols = {}
+endif
 
-	let substr = matchstr(substr, "[^ \t]*$")
-	if (strlen(substr)==0)
-		return "\<tab>"
-	endif
-	let has_period = match(substr, '\.') != -1
-	let has_slash = match(substr, '\/') != -1
-	if (!has_period && !has_slash)
-		return "\<c-x>\<c-p>"
-	elseif ( has_slash)
-		return "\<c-x>\<c-f>"
-	else
-		return "\<c-x>\<c-o>"
-	endif
-endfunction
+let g:airline_left_sep = ''
+let g:airline_left_alt_sep = ''
+let g:airline_right_sep = ''
+let g:airline_right_alt_sep = ''
+let g:airline_symbols.branch = ''
+let g:airline_symbols.readonly = ''
+let g:airline_symbols.linenr = ''
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = ''
 
-function! AcpMeetsForLispOmni(context)
-	return a:context =~ '\(\(\w\|-\|_\|\*\)\+\)\|\(:\(\w\|-\|_\|\*\)\{2,\}\)'
-endfunction
-
-function! AcpMeetsForLispLocal(context)
-	return a:context =~ '\(:?\(\w\|-\|_\|\*\)\+\)'
-endfunction
-
-let g:acp_behavior = {
-	\ 'lisp'   : [{
-    \ "command": "\<c-x>\<c-p>",
-	\ "meets"  : 'AcpMeetsForLispLocal',
-	\ "repeat" : 0,
-	\ }, {
-	\ "command": "\<c-x>\<c-o>",
-	\ 'meets'  : 'AcpMeetsForLispOmni',
-	\ 'repeat' : 0,
-	\ }]
-	\ }
-
-inoremap <expr> <tab> TabComplete()
+au BufNewFile,BufRead *.asd set filetype=lisp

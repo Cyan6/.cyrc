@@ -1,7 +1,6 @@
 typeset -U path
 export GOPATH=$HOME/go
 export EDITOR=vim
-path=(~/bin $GOPATH/bin $path)
-
-clear
-
+export VISUAL=vim
+export PYTHONPATH=/usr/lib/python3.4/site-packages 
+path=(~/bin $GOPATH/bin $path ~/go_appengine)
